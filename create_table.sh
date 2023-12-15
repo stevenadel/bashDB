@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# still under work
 function create_table() {
     read -p "Enter table name to create: " table
     if [[ -f $table ]]
