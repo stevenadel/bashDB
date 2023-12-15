@@ -2,30 +2,30 @@
 echo -e "\nINSERT\n "
 
 function data_type_validate {
-vali=-1
+valid=-1
 
 case $2 in
     *int )
         if [[ $1 =~ ^[+-]?[0-9]+$ ]]; then
-            vali=1
+            valid=1
         fi
         ;;
     *string )
         if [[ $1 =~ ^[a-zA-Z0-9]+$ ]]; then
-            vali=1
+            valid=1
         fi
         ;;
     *float )
         if [[ $1 =~ ^[+-]?[0-9]+\.?[0-9]*$ ]]; then
-            vali=1
+            valid=1
         fi
         ;;
     * )
-        vali=0
+        valid=0
         ;;
 esac
 
-return $vali
+return $valid
 }
 read -e -p "please enter table name: " table
 table=$(echo ${table// /_})
