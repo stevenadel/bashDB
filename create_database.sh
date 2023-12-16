@@ -16,7 +16,7 @@ function create_database {
         elif [[ ! "$db_name" =~ ^[a-zA-Z]*$ ]]; then
             echo "Name of the database can't contain special characters or numbers!"
         # Check if the database already exists
-        elif [ -e "./ourdatabase/$db_name" ]; then
+        elif [ -e "./bashDB/$db_name" ]; then
             echo "Database already exists!"
         else
             break
@@ -25,7 +25,6 @@ function create_database {
         read -p "Please enter database name: " db_name
     done
 
-    mkdir -p "./ourdatabase/$db_name"
+    mkdir -p "./bashDB/$db_name"
     echo "Database created successfully"
-}
 }
