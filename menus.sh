@@ -42,8 +42,8 @@ table_menu() {
         ;;
         7) drop_table
         ;;
-        8)  cd ..
-            main_menu
+        8) cd ..
+           main_menu
         ;;
         *) echo "Please choose from available options 1-8."
            table_menu
