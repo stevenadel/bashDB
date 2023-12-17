@@ -5,7 +5,7 @@ data_type_validate() {
     valid=-1
     case $2 in
         *int )
-            if [[ $1 =~ ^[+-]?[0-9]+$ ]]; then
+            if [[ "$1" =~ ^[0-9_]+$ ]]; then
                 valid=1
             fi
             ;;
