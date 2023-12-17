@@ -3,19 +3,20 @@ function create_table() {
     while true; do
         read -p "Please enter table name: " name
         if [[ $name = " " ]]; then
-            echo "Name of the table can't contain spaces!"
+            echo "Name of table can't contain spaces."
             name=$(echo ${name// /_})
             echo "New name: $name"
         elif [ -z "$name" ]; then
-            echo "You didn't enter a table name."
+            echo "Please enter a table name."
         elif [[ ! $name =~ ^[a-zA-Z]*$ ]]; then
-            echo "Name of the table can't contain special characters or numbers!"
+            echo "Name of table can't contain special characters or numbers!"
         elif [ -f "$name" ]; then
             echo "Table already exists!"
         else
             break
         fi
     done
+
     touch $name
     touch $name.metadata
     read -p "Please enter number of columns " cols
@@ -29,10 +30,11 @@ function create_table() {
         read -p "Please enter the primary key of the table: " primary_key
     done
     header=$primary_key
+    
     while true; do
         read -p "Please enter the type of the primary key [int-string-float]: " primary_key_type
 
-        if [[ $primary_key_type == "int" ]] || [[ $primary_key_type == "string" ]] || [[ $primary_key_type == "float" ]]; then
+        if [[ $primaryKeyType == "int" ]] || [[ $primaryKeyType == "string" ]] || [[ $primary_key_type == "float" ]]; then
             break
         fi
 
@@ -79,5 +81,5 @@ function create_table() {
         ((field_number++))
     done
 
-    echo "$header" >>"$name"
+    echo "$header" >> "$name"
 }
