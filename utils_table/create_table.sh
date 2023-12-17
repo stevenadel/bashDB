@@ -22,23 +22,23 @@ function create_table() {
     read -p "Please enter number of columns " cols
     # Loop until a valid number of columns is entered
     while [ -z "$cols" ]; do
-        read -p "Please enter the number of columns: " cols
+        read -p "Please enter number of columns: " cols
     done
 
     # Loop until a valid primary key is entered
     while [ -z "$primary_key" ]; do
-        read -p "Please enter the primary key of the table: " primary_key
+        read -p "Please enter primary key of table: " primary_key
     done
     header=$primary_key
     
     while true; do
-        read -p "Please enter the type of the primary key [int-string-float]: " primary_key_type
+        read -p "Please enter type of primary key (int - string - float): " primary_key_type
 
-        if [[ $primaryKeyType == "int" ]] || [[ $primaryKeyType == "string" ]] || [[ $primary_key_type == "float" ]]; then
+        if [[ $primary_key_type == "int" ]] || [[ $primary_key_type == "string" ]] || [[ $primary_key_type == "float" ]]; then
             break
         fi
 
-        echo -e "\nWrong input! Please enter [int-string-float]\n"
+        echo -e "Incorrect input! Please enter (int - string - float)"
     done
     pk=$primary_key:$primary_key_type
     echo $pk >>$name.metadata
@@ -47,13 +47,13 @@ function create_table() {
     field_number=2
 
     while [ $iter_num -lt $cols ]; do
-        read -p "please enter field ${field_number} name :" field
+        read -p "please enter field ${field_number} name:" field
 
         while true; do
             column_exists=$(cut -d: -f1 "$name.metadata" | grep -w "$field" 2>/dev/null)
 
             if [ "$column_exists" ]; then
-                echo "column already exists in table $name"
+                echo "Column already exists in table $name!"
             elif [ ! "$field" ]; then
                 echo "Please enter a valid field name"
             else
@@ -64,10 +64,10 @@ function create_table() {
         done
 
         while true; do
-            read -p "please enter field ${field_number} type [ int-string-float ] " field_type
+            read -p "please enter field ${field_number} type (int - string - float) " field_type
 
             if [[ $field_type != "int" ]] && [[ $field_type != "string" ]] && [[ $field_type != "float" ]] || [[ ! $field_type ]]; then
-                echo -e "\nWrong input ! please enter [ int-string-float ]\n"
+                echo -e "Wrong input! please enter (int - string - float)"
             else
                 break
             fi
