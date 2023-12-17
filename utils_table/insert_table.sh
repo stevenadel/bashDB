@@ -1,5 +1,4 @@
 #!/bin/bash
-source data_type_validate
 insert_table() {
     read -e -p "please enter table name: " table
     table=$(echo ${table// /_})
