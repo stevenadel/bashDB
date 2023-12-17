@@ -32,7 +32,7 @@ function create_table() {
     while true; do
         read -p "Please enter the type of the primary key [int-string-float]: " primary_key_type
 
-        if [[ $primaryKeyType == "int" ]] || [[ $primaryKeyType == "string" ]] || [[ $primary_key_type == "float" ]]; then
+        if [[ $primary_key_type == "int" ]] || [[ $primary_key_type == "string" ]] || [[ $primary_key_type == "float" ]]; then
             break
         fi
 
