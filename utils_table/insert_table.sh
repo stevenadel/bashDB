@@ -1,7 +1,6 @@
 #!/bin/bash
 source data_type_validate
 insert_table() {
-    echo -e "\nINSERT\n "
     read -e -p "please enter table name: " table
     table=$(echo ${table// /_})
     while [[ ! -f "$table" && "$table" ]]; do
