@@ -9,7 +9,7 @@ source ./utils_table/list_table.sh
 source ./utils_table/select_table.sh
 source ./utils_table/insert_table.sh
 source ./utils_table/delete_table.sh
-source ./utils_table/update_table.sh
+#source ./utils_table/update_table.sh
 source ./utils_table/drop_table.sh
 source ./utils_table/data_type_validate.sh
 
