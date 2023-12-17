@@ -16,7 +16,6 @@ function create_table() {
             break
         fi
     done
-    create_table
     touch $name
     touch $name.metadata
     read -p "Please enter number of columns " cols
