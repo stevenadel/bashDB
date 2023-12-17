@@ -1,79 +1,70 @@
 #!/bin/bash
-source data_type_validate
-echo -e "\nUPDATE\n"
+update_table() {
+    read -p "Please enter table name to update: " table
+    while [ ! -f $table -a $table ]; do
+        echo -e "Table doesn't exist"
+        read -p "Please enter table name: " table
+    done
+    echo "Updating from $table >> "
 
-read -e -p "please enter table name: " table_name
-table_name=$(echo ${table_name// /_})
-while [[ ! -f "$table_name" && "$table_name" ]];
-do
-	echo "Table doesn't exist"
-	read -e -p "please enter table name: " table_name
-        table_name=$(echo ${table_name// /_})
-done
-PS3="Update from $table_name >> "
-read -p "enter : Column name >>  " column 
-cut_output=$(cut -d: -f1 "$tableName.metadata")
-column_found=$(echo "$cut_output" | grep -w "$column" 2> /dev/null)
-while [ ! $column_found ];do
-		echo -e "\ncolumn doesn't exist in table $table_name\n"
-		read -p "enter : Column name :   " column 
-		cut_output=$(cut -d: -f1 "$tableName.metadata")
-                column_found=$(echo "$cut_output" | grep -w "$column" 2> /dev/null)
-			
-	done
-column_number=$(grep -n -w $column $table_name.metadata | cut -d: -f1)
-read -p "enter  : $column value: " c_value
-data_type=$(grep -w "$column" "$table_name.metadata")
-data_type_validate $c_value $data_type
-check=$?
+    read -p "Enter column name to SET: " column
+    col_exists=$(cut -d: -f1 $table.metadata | grep -w $column 2>/dev/null)
+    while [ ! $col_exists ]; do
+        echo -e "column doesn't exist in $table"
+        read -p "Enter column name SET: " column
+        col_exists=$(cut -d: -f1 $table.metadata | grep -w $column 2>/dev/null)
+    done
 
-while true
-do
-    if [ "$check" -eq 0 ]; then
-        echo "data types don't match"
-        read -p "enter  : $column value: " c_value
-        data_type_validate $c_value $data_type
+    col_num=$(grep -n -w $column $table.metadata | cut -d: -f1)
+    read -p "Enter column value SET: " value
+    datatype=$(grep -w $column $table.metadata)
+    data_type_validate $value $datatype
+    check=$?
+    while [ $check = 0 ]; do
+        echo -e "Incorrect data type."
+        read -p "Enter column value SET: " value
+        data_type_validate $value $datatype
         check=$?
+    done
+
+    read -p "Enter column name WHERE: " colcond
+    colcond_exists=$(cut -d: -f1 $table.metadata | grep -w $colcond 2>/dev/null)
+
+    while [ ! $colcond_exists ]; do
+        echo "column doesn't exist in $table"
+        read -p "Enter column name WHERE: " colcond
+        colcond_exists=$(cut -d: -f1 $table.metadata | grep -w $colcond 2>/dev/null)
+    done
+
+    colcond_num=$(grep -n -w $colcond $table.metadata | cut -d: -f1)
+
+    read -p "Enter column value WHERE: " valueCond
+    while [ ! $valueCond ]; do
+        echo -e "Cannot set empty value"
+        read -p "Enter column value WHERE: " valueCond
+    done
+
+    rows_num=$(awk -v COLCOND=$colcond_num -v VALCOND=$valueCond -v COL=$col_num -v VAL=$value 'BEGIN{OFS=FS=":"}{ if($COLCOND==VALCOND){print $0}}' $table | wc -l)
+    if [ $col_num == 1 ]
+    then
+        value_exists=$(cut -d: -f1 $table | grep -w $value | wc -l)
+        if [ $value_exists -gt 0 ]; then
+            echo "Primary key must be unique."
+            break
+        fi
+        if [ $rows_num -gt 1 ]; then
+            echo "Primary key cannot be the same for multiple rows."
+            break
+        fi
+    fi
+
+    if [[ $rows_num == 0 ]]
+    then
+        echo "no match found"
     else
-        break
+        awk -v COLCOND=$colcond_num -v VALCOND=$valueCond -v COL=$col_num -v VAL=$value 'BEGIN{OFS=FS=":"} { if($COLCOND==VALCOND){$COL=VAL}; print $0}' $table > tmp
+        mv tmp "$table"
+        echo "$table"
+        echo " $rows_num rows affected successfully"
     fi
-done
-read -p "enter condition : Column name :  " col_cond
-col_cond_found=(echo "$cut_output" | grep -w "$col_cond" 2> /dev/null)
-while [ ! $col_cond_found ];do
-		echo -e "\ncolumn doesn't exist in table $table_name\n"
-		read -p "enter : Column name :   " col_cond
-                cut_output=$(cut -d: -f1 "$tableName.metadata")
-                col_cond_found=$(echo "$cut_output" | grep -w "$col_cond" 2> /dev/null)
-			
-	done
-col_con_num=$(grep -n -w "$col_cond" "$table_name.metadata" | cut -d: -f1)
-read -p "enter condition : Value  :  " val_cond
-while [ ! $val_cond ];do
-		echo -e "\nCannot set empty value\n"	
-		read -p "enter condition : Value  >>  " val_cond	
-	done
-num_of_rows=$(awk -v colcond="$column_cond_num" -v valcond="$val_cond" -v col="$column_number" -v val="$c_value" -F ":" '($col_cond == valcond) && ($col == val) {count++} END{print count}' "$table_name")
-if [ "$column_number" -eq 1 ]; then
-    value_found=$(awk -v val="$value" -F: '$1 == val {count++} END {print count}' "$table_name")
-    
-    if [ "$value_found" -gt 0 ]; then
-        echo "Value of primary key already exists"
-        exit
-    fi
-    
-    if [ "$num_of_rows" -gt 1 ]; then
-        echo "Can't set the same primary key value for multiple rows"
-        exit
-    fi
-fi
-
-if [ "$num_of_rows" -eq 0 ]; then
-
-	echo "no match found"
-	#perform update
-	else
-		awk -v colcond="$column_cond_num" -v valcond="$val_cond" -v col="$column_number" -v val="$c_value" 'BEGIN{OFS=FS=":"}{ if($colcond==valcond){$col=val};print $0}' $table_name > temp
-		mv temp $table_name
-		echo " $num_of_rows rows affected successfully"
-	fi
+}
