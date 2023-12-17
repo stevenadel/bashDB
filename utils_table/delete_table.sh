@@ -1,5 +1,5 @@
 #!/bin/bash
-echo -e "\n DELETE \n"
+delete_table(){
 read -e -p "please enter table name: " table_name
 table_name=$(echo ${table_name// /_})
 while [[ ! -f "$table_name" && "$table_name" ]];
@@ -48,3 +48,4 @@ if [ $(cat tmp1 | wc -l) -eq 1 ]
 ;;
 esac 
 done
+}
