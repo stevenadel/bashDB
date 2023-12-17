@@ -23,8 +23,8 @@ insert_table() {
 
             while [ "$check" -eq 0 ]; do
                 echo "Data types don't match"
-                read -p "Please enter $field: " newField
-                checkDataType "$newField" "$field"
+                read -p "Please enter $field: " new_field
+                 data_type_validate "$new_field" "$field"
                 check=$?
             done
             if [ $record = -1 ]; then
