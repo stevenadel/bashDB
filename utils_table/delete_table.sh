@@ -37,7 +37,7 @@ function delete_table {
             done
             col_num=$(grep -n -w $column $table.metadata | cut -d: -f1)
             awk -v col="$col_num" -v val="$value" -F ":" '$col != val { print $0 }' "$table" > tmp1
-            if [ $(cat tmp1 | wc -l) -eq 1 ]
+            if [ $(cat tmp1 | wc -l) -eq 0 ]
             then
                 echo "No records found"
             else
