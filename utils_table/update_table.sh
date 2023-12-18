@@ -50,21 +50,20 @@ update_table() {
         value_exists=$(cut -d: -f1 $table | grep -w $value | wc -l)
         if [ $value_exists -gt 0 ]; then
             echo "Primary key must be unique."
-            break
+            exit
         fi
         if [ $rows_num -gt 1 ]; then
             echo "Primary key cannot be the same for multiple rows."
-            break
+            exit
         fi
     fi
 
     if [[ $rows_num == 0 ]]
     then
-        echo "no match found"
+        echo "No records found"
     else
         awk -v COLCOND=$colcond_num -v VALCOND=$valueCond -v COL=$col_num -v VAL=$value 'BEGIN{OFS=FS=":"} { if($COLCOND==VALCOND){$COL=VAL}; print $0}' $table > tmp
         mv tmp "$table"
-        echo "$table"
-        echo " $rows_num rows affected successfully"
+        echo " $rows_num rows updated successfully."
     fi
 }
