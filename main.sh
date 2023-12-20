@@ -1,4 +1,5 @@
 #!/bin/bash
+shopt -s extglob
 source menus.sh
 source ./utils_database/create_database.sh
 source ./utils_database/list_database.sh

@@ -1,17 +1,12 @@
 #!/bin/bash
-function delete_table {
+delete_table() {
     read -e -p "please enter table name to delete from: " table
-    table=$(echo ${table// /_})
-
-    while [[ ! -f "$table" && "$table" ]]
-    do
+    while [[ ! -f "$table" && "$table" ]]; do
         echo "Table doesn't exist"
         read -e -p "please enter table name: " table
-        table=$(echo ${table// /_})
     done
 
-    select choice in "Delete all records" "Delete record within specific column" "Exit"
-    do
+    select choice in "Delete all records" "Delete record within specific column" "Exit"; do
         case $REPLY in
         1)
             awk 'NR==1 {print > "temp"}' "$table"
@@ -24,29 +19,44 @@ function delete_table {
             ;;
         2)
             while true; do
+                # Prompt user to enter column name
                 read -p "Enter column name: " column
-                read -p "Enter column value: " value
-                # Check if either the column name or value is empty using '-z' (empty string) test
-                if [ -z "$column" ] || [ -z "$value" ]
-                then
-                    echo "fields can't be empty!"
+                # Find line number of the column in the metadata file
+                col_num=$(grep -n -w "$column" "$table.metadata" | cut -d: -f1)
+                # Check if the column name is empty
+                if [ -z "$column" ]; then
+                    echo "Column name cannot be empty!"
                 else
-                    # break out of the loop if both column name and value are provided and not empty
+                    if ! grep -q -w "$column" "$table.metadata"; then
+                        # Check if the specified column name does not exist in the metadata file
+                        echo "Column '$column' does not exist in the table. Please enter a valid column name."
+                    else
+                        while true; do
+                            # Prompt user to enter column value
+                            read -p "Enter column value: " value
+
+                            # Check if the column value is empty
+                            if [ -z "$value" ]; then
+                                echo "Column value can't be empty!"
+                            else
+                                # Number of records before deleting
+                                records_num_old=$(wc -l "$table" | cut -d" " -f1)
+                                # Rewrite the table without the matching records
+                                awk -v col="$col_num" -v val="$value" -F ":" '$col != val { print $0 }' "$table" > tmp1
+                                truncate -s 0 "$table"
+                                cat tmp1 >"$table"
+                                rm tmp1
+                                # Number of records after deleting
+                                records_num_new=$(wc -l "$table" | cut -d" " -f1)
+                                deleted_records=$(($records_num_old - $records_num_new))
+                                echo "$deleted_records records deleted."
+                                break
+                            fi
+                        done
                     break
+                    fi
                 fi
             done
-            col_num=$(grep -n -w $column $table.metadata | cut -d: -f1)
-            awk -v col="$col_num" -v val="$value" -F ":" '$col != val { print $0 }' "$table" > tmp1
-            if [ $(cat tmp1 | wc -l) -eq 1 ]
-            then
-                echo "No records found"
-            else
-                truncate -s 0 "$table"
-                cat tmp1 > "$table"
-                rm tmp1
-                echo "Deleted successfully."
-            fi
-
             ;;
         3)
             break

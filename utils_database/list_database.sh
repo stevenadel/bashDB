@@ -1,5 +1,5 @@
 #!/bin/bash
-function list_database {
+list_database() {
     databases=$(ls -F | grep /)
     if [[ -z "${databases// }" ]]
     then

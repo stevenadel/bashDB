@@ -1,17 +1,17 @@
 #!/bin/bash
-function create_table() {
+create_table() {
     while true; do
-        read -p "Please enter table name: " name
-        if [[ $name = " " ]]; then
-            echo "Name of table can't contain spaces."
-            name=$(echo ${name// /_})
-            echo "New name: $name"
-        elif [ -z "$name" ]; then
-            echo "Please enter a table name."
-        elif [[ ! $name =~ ^[a-zA-Z]*$ ]]; then
-            echo "Name of table can't contain special characters or numbers!"
+        read -p "Please enter table name to create: " name
+        if [[ -z "$name" ]]; then
+            echo "Table name cannot be empty."
         elif [ -f "$name" ]; then
             echo "Table already exists!"
+        elif [[ $name = *" "* ]]; then
+            echo "Table name cannot contain spaces."
+            name=$(echo ${name// /_})
+            echo "Spaces may be substituted by underscore as: $name"
+        elif [[ ! $name =~ ^[a-zA-Z_]*$ ]]; then
+            echo "Table name cannot contain numbers or special characters!"
         else
             break
         fi
@@ -19,10 +19,20 @@ function create_table() {
 
     touch $name
     touch $name.metadata
-    read -p "Please enter number of columns " cols
+
     # Loop until a valid number of columns is entered
-    while [ -z "$cols" ]; do
-        read -p "Please enter number of columns: " cols
+    while true; do
+        read -p "Enter a number of columns: " cols
+
+        # Check if the input is non-empty
+        if [[ -z $cols ]]; then
+            echo "Invalid input. Please enter a non-empty value."
+        # Check if the input is a positive integer
+        elif [[ ! $cols =~ ^[1-9][0-9]*$ ]]; then
+            echo "Invalid input. Please enter the colmuns number as positive integer ONLY."
+        else
+            break
+        fi
     done
 
     # Loop until a valid primary key is entered
@@ -30,15 +40,15 @@ function create_table() {
         read -p "Please enter primary key of table: " primary_key
     done
     header=$primary_key
-    
-    while true; do
-        read -p "Please enter type of primary key (int - string - float): " primary_key_type
 
-        if [[ $primary_key_type == "int" ]] || [[ $primary_key_type == "string" ]] || [[ $primary_key_type == "float" ]]; then
+    while true; do
+        read -p "Please enter type of primary key (int or string): " primary_key_type
+
+        if [[ $primary_key_type == "int" ]] || [[ $primary_key_type == "string" ]]; then
             break
         fi
 
-        echo -e "Incorrect input! Please enter (int - string - float)"
+        echo -e "Incorrect input! Please enter (int or string)."
     done
     pk=$primary_key:$primary_key_type
     echo $pk >>$name.metadata
@@ -47,7 +57,7 @@ function create_table() {
     field_number=2
 
     while [ $iter_num -lt $cols ]; do
-        read -p "please enter field ${field_number} name:" field
+        read -p "please enter field ${field_number} name: " field
 
         while true; do
             column_exists=$(cut -d: -f1 "$name.metadata" | grep -w "$field" 2>/dev/null)
@@ -55,19 +65,19 @@ function create_table() {
             if [ "$column_exists" ]; then
                 echo "Column already exists in table $name!"
             elif [ ! "$field" ]; then
-                echo "Please enter a valid field name"
+                echo "Please enter a valid field name: "
             else
                 break
             fi
 
-            read -p "please enter field ${field_number} name :" field
+            read -p "please enter field ${field_number} name: " field
         done
 
         while true; do
-            read -p "please enter field ${field_number} type (int - string - float) " field_type
+            read -p "please enter field ${field_number} type (int or string) " field_type
 
-            if [[ $field_type != "int" ]] && [[ $field_type != "string" ]] && [[ $field_type != "float" ]] || [[ ! $field_type ]]; then
-                echo -e "Wrong input! please enter (int - string - float)"
+            if [[ $field_type != "int" ]] && [[ $field_type != "string" ]] || [[ ! $field_type ]]; then
+                echo -e "Wrong input! please enter (int or string)."
             else
                 break
             fi
