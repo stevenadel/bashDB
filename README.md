@@ -1,5 +1,2 @@
-# bashDB - ITI 44
-ITI's "Bash Scripting" course project; a database implemented in bash.
-## Project By:
-* Mona Eid
-* Steven Adel
+# bashDB
+A simple linux database management system (DBMS) cli application which creates databases & tables, and enables CRUD operations. Written in bash.
